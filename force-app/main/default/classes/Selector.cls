@@ -6,26 +6,33 @@
  */
 
 public with sharing virtual class Selector {
+    private String selectStatement;
+    private String fromStatement;
     private Query query;
-    public String queryString {get; private set; }
+    public String queryString { get; private set; }
+    public Set<String> idsToFilterBy;
 
     public Selector(Query query) {
         this.query = query;
+        this.idsToFilterBy = query.idsToFilterBy;
     }
 
     public void buildQuery() {
-        String queryString = 'SELECT ' +
-                buildFieldNameString(query.fields) +
-                ' FROM ' +
-                buildWhereClause(this.query.whereConditions) +
-                this.query.type;
-
-        this.queryString = queryString;
+        this.selectStatement = buildForStatement(this.query.fields);
+        this.fromStatement = buildFromStatement(this.query.type);
     }
 
-    public List<SObject> query(){
-        return Database.query(this.queryString);
-     }
+    public String buildForStatement(List<SObjectField> queryFields) {
+        return 'SELECT ' + buildFieldNameString(query.fields);
+    }
+
+    public String buildFromStatement(SObjectType type) {
+        return ' FROM ' + type;
+    }
+
+    public List<SObject> query() {
+        return Database.query(this.selectStatement + this.fromStatement);
+    }
 
     /**
      * @param sObjectFields fields to be used in the query
@@ -41,22 +48,4 @@ public with sharing virtual class Selector {
         String fieldNameString = String.join(new List<String>(fieldNameSet), ',');
         return fieldNameString;
       }
-
-    public String buildWhereClause(List<Query.WhereCondition> whereConditions) {
-        String whereString = ' WHERE ';
-        if (whereConditions.isEmpty()) {
-	        return '';
-        }else {
-            for (Query.WhereCondition whereCondition : whereConditions){
-             whereString += buildClause(whereCondition);
-            }
-        }
-        return whereString;
-    }
-    private String buildClause(Query.WhereCondition whereCondition){
-        if (whereCondition.idsToFilterBy != null) {
-            return ' id IN: ' + whereCondition.idsToFilterBy;
-        }
-        return null;
-    }
 }

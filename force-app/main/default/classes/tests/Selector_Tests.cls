@@ -17,10 +17,12 @@ private class Selector_Tests {
     }
 
     @IsTest
-    static void itShouldBuildFieldNameString(){
+    static void itShouldBuildFieldNameString() {
         //given
-        List<SObjectField> sObjectFields = new List<SObjectField>{Account.Name,
-        Account.AnnualRevenue, Account.Description};
+        List<SObjectField> sObjectFields = new List<SObjectField>{
+                Account.Name,
+                Account.AnnualRevenue, Account.Description
+        };
         Query query = new Query(Account.SObjectType).fields(sObjectFields);
         //when
         Selector selector = new Selector(query);
@@ -32,16 +34,45 @@ private class Selector_Tests {
     }
 
     @IsTest
-    static void itShouldBuildIdFilter(){
+    static void itShouldBuildForStatement() {
         //given
-        List<SObjectField> sObjectFields = new List<SObjectField>{Account.Name,
-                Account.AnnualRevenue, Account.Description};
-        Query query = new Query(Account.SObjectType)
-                .fields(sObjectFields)
-                .filterById('12345');
+        List<SObjectField> sObjectFields = new List<SObjectField>{
+                Account.Name,
+                Account.AnnualRevenue, Account.Description
+        };
+        Query query = new Query(Account.SObjectType).fields(sObjectFields);
         //when
         Selector selector = new Selector(query);
-        selector.buildQuery();
-        String whereCondition = selector.buildWhereClause(query.whereConditions[0]);
+        String forStatement = selector.buildForStatement(sObjectFields);
+        //then
+        System.assertNotEquals(null, forStatement, 'It should build the for statement');
+    }
+
+    @IsTest
+    static void itShouldBuildFromStatement() {
+        //given
+        List<SObjectField> sObjectFields = new List<SObjectField>{
+                Account.Name,
+                Account.AnnualRevenue, Account.Description
+        };
+        Query query = new Query(Account.SObjectType).fields(sObjectFields);
+        //when
+        Selector selector = new Selector(query);
+        String fromStatement = selector.buildFromStatement(Account.SObjectType);
+        //then
+        System.assert(fromStatement.contains('Account'), 'It should create the appropriate from statement');
+    }
+    @IsTest
+    static void itShouldBuildIdFilter() {
+        //given
+        /* List<SObjectField> sObjectFields = new List<SObjectField>{Account.Name,
+                 Account.AnnualRevenue, Account.Description};
+         Query query = new Query(Account.SObjectType)
+                 .fields(sObjectFields)
+                 .filterById('12345');
+         //when
+         Selector selector = new Selector(query);
+         selector.buildQuery();
+         String whereCondition = selector.buildWhereClause(query.whereConditions[0]);*/
     }
 }

@@ -16,19 +16,29 @@ public with sharing class Selector_Tests_Integration {
         insert accounts;
     }
     @IsTest
-    static void itShouldReturnAccounts(){
+    static void itShouldReturnAccounts() {
         //given
-        List<SObjectField> sObjectFields = new List<SObjectField>{Account.Name, Account.AnnualRevenue,
-        Account.Description};
+        List<Account> accounts = [
+                SELECT Id, Name
+                FROM Account
+                WHERE Name = 'Test Acc1'
+        ];
+
+        System.debug(accounts);
+        List<SObjectField> sObjectFields = new List<SObjectField>{
+                Account.Name, Account.AnnualRevenue,
+                Account.Description
+        };
         Query query = new Query(Account.SObjectType)
                 .fields(sObjectFields);
+
         //when
         Selector selector = new Selector(query);
         selector.buildQuery();
-        List<Account> accounts = selector.query();
+        List<Account> results = selector.query();
         //then
-        System.debug(accounts);
-        System.assert(2 == accounts.size(), 'It should find all accounts');
+        System.debug(results);
+        System.assert(2 == results.size(), 'It should find all results');
     }
 
 }

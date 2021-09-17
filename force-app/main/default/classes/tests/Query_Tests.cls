@@ -2,6 +2,11 @@
  * Created by Brooks Johnson on 9/14/2021.
  */
 
+//TODO build where  / and condition
+//TODO build condition
+//TODO build operator
+//todo build predicate
+
 @IsTest
 private class Query_Tests {
     @IsTest
@@ -24,13 +29,27 @@ private class Query_Tests {
         System.assertEquals(4, query.fields.size(), 'It should set fields');
     }
 
+    /* @IsTest
+     static void itShouldBuildIDFilter(){
+         //given
+         Query query = new Query(Account.SObjectType);
+         //when
+         query.filterById('12345');
+         //then
+         System.debug(query.idsToFilterBy);
+         System.assert(query.idsToFilterBy != null);
+     }*/
+
     @IsTest
-    static void itShouldBuildIDFilter(){
-        //given
+    static void itShouldSetWhereClause() {
+        List<SObjectField> fields = new List<SObjectField>{
+                Account.Id, Account.Name, Account.AnnualRevenue
+        };
         Query query = new Query(Account.SObjectType);
-        //when
-        query.filterById('12345');
-        //then
-        System.assert(1 == query.whereConditions.size(), 'It should create a filter');
+        query.fields(fields)
+                .setWhere(Account.Id);
+
+        System.assertEquals(query.currentFilter.condition, ' WHERE ', 'It should be set to WHERE');
+        System.assertEquals(query.currentFilter.fieldToFilter, Account.Id, 'It should be set to Account Id');
     }
 }
